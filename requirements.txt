@@ -1,0 +1,7 @@
+flask==2.0.3
+wheel==0.37.1
+paddlehub
+protobuf==3.20.1
+numpy
+opencv-python
+paddlepaddle-gpu==2.3.0
