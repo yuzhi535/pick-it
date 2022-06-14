@@ -60,10 +60,9 @@ def human_seg():
     
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
+        filename = filename[:-4]+'_humanseg' + filename[-4:]
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-
         src = cv.imread(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        print(src.shape)
         model = hub.Module(name="FCN_HRNet_W18_Face_Seg")
         result = model.Segmentation(images=[src], visualization=False)
         output = result[0].get('face')
@@ -94,6 +93,7 @@ def super_res():
 
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
+        filename = filename[:-4]+'_superres' + filename[-4:]
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
         src = cv.imread(os.path.join(app.config['UPLOAD_FOLDER'], filename))
