@@ -5,7 +5,6 @@ import cv2 as cv
 import numpy as np
 import paddlehub as hub
 from flask import Flask, request, flash, redirect, send_file
-from flask import jsonify
 from werkzeug.utils import secure_filename
 
 UPLOAD_FOLDER = './uploads'
@@ -45,28 +44,48 @@ slr_dir='slr_output'
 返回图像
 '''
 
+def save(data):
+    if 'file' not in request.files:
+        flash('No file part')
+        return redirect(request.url)
+    file = request.files['file']
+    if file.filename == '':
+        flash('No selected file')
+        return redirect(request.url)
+
 
 @app.route('/human_segmentation', methods=['POST'])
 def human_seg():
+    #  验证是否有该图片
     if 'file' not in request.files:
         flash('No file part')
         return 'no files'
     file = request.files['file']
     
+    # 该图片是否有名称
     if file.filename == '':
         flash('No selected file')
         return redirect(request.url)
     
-    
+    # 是否是允许的图片
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
+        
+        # 修改文件名并存储
         filename = filename[:-4]+'_humanseg' + filename[-4:]
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        
+        # 读取该图片
         src = cv.imread(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        
+        # 推理
         model = hub.Module(name="FCN_HRNet_W18_Face_Seg")
         result = model.Segmentation(images=[src], visualization=False)
+        
+        # 得到结果
         output = result[0].get('face')
         out_filename = os.path.join(seg_dir, filename[:-4]+'_res.png')
+        # 存储
         cv.imwrite(out_filename, output)
         
         return send_file(out_filename, attachment_filename=filename)
