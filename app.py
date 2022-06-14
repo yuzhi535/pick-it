@@ -48,10 +48,6 @@ slr_dir='slr_output'
 
 @app.route('/human_segmentation', methods=['POST'])
 def human_seg():
-    
-    
-    
-    
     if 'file' not in request.files:
         flash('No file part')
         return 'no files'
